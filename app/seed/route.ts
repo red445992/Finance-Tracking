@@ -103,15 +103,21 @@ async function seedRevenue() {
 
 export async function GET() {
   try {
-    const result = await sql.begin((sql) => [
-      seedUsers(),
-      seedCustomers(),
-      seedInvoices(),
-      seedRevenue(),
-    ]);
+    console.log('Starting database seeding...');
+    console.log('POSTGRES_URL available:', !!process.env.POSTGRES_URL);
+    
+    await seedUsers();
+    await seedCustomers();
+    await seedInvoices();
+    await seedRevenue();
 
+    console.log('Database seeded successfully');
     return Response.json({ message: 'Database seeded successfully' });
   } catch (error) {
-    return Response.json({ error }, { status: 500 });
+    console.error('Seeding error:', error);
+    return Response.json({ 
+      error: error instanceof Error ? error.message : 'Unknown error',
+      details: error 
+    }, { status: 500 });
   }
 }
